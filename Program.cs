@@ -3,6 +3,12 @@ using System.Globalization;
 
 namespace Geometry
 {
+    public interface IPrintable
+    {
+        void PrintCoefficients();
+        void CheckPoint();
+    }
+
     public abstract class LinearInequality
     {
         protected double _b;
@@ -40,11 +46,9 @@ namespace Geometry
         }
 
         public abstract void SetCoefficients();
-        public abstract void PrintCoefficients();
-        public abstract void CheckPoint();
     }
 
-    public class HalfPlane : LinearInequality
+    public class HalfPlane : LinearInequality, IPrintable
     {
         protected double _a1, _a2;
 
@@ -69,12 +73,12 @@ namespace Geometry
             _b  = ReadDouble("Введіть b: ");
         }
 
-        public override void PrintCoefficients()
+        public void PrintCoefficients()
         {
             Console.WriteLine($"Півплощина: {_a1} * x1 + {_a2} * x2 <= {_b}");
         }
 
-        public override void CheckPoint()
+        public void CheckPoint()
         {
             Console.WriteLine("\nВведіть координати точки:");
             double x1 = ReadDouble("x1 = ");
@@ -88,15 +92,18 @@ namespace Geometry
         }
     }
 
-    public class HalfSpace : HalfPlane
+    public class HalfSpace : LinearInequality, IPrintable
     {
         private double _a3;
+        private double _a1, _a2;
 
         public HalfSpace() { }
 
         public HalfSpace(double a1, double a2, double a3, double b)
-            : base(a1, a2, b)
+            : base(b)
         {
+            _a1 = a1;
+            _a2 = a2;
             _a3 = a3;
         }
 
@@ -113,12 +120,12 @@ namespace Geometry
             _b  = ReadDouble("Введіть b: ");
         }
 
-        public override void PrintCoefficients()
+        public void PrintCoefficients()
         {
             Console.WriteLine($"Півпростір: {_a1} * x1 + {_a2} * x2 + {_a3} * x3 <= {_b}");
         }
 
-        public override void CheckPoint()
+        public void CheckPoint()
         {
             Console.WriteLine("\nВведіть координати точки:");
             double x1 = ReadDouble("x1 = ");
@@ -147,11 +154,16 @@ namespace Geometry
                 Console.Write("Помилка! Введіть 1 або 2: ");
             }
 
-            LinearInequality obj = choice == 1
-                ? new HalfPlane()
-                : new HalfSpace();
+            IPrintable obj;
 
-            obj.SetCoefficients();
+            if (choice == 1)
+                obj = new HalfPlane();
+            else
+                obj = new HalfSpace();
+
+            if (obj is LinearInequality li)
+                li.SetCoefficients();
+
             obj.PrintCoefficients();
             obj.CheckPoint();
 
